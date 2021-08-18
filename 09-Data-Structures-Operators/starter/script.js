@@ -110,8 +110,6 @@ const {
   odds: { team1, x: draw, team2 },
 } = game; //example of nested deconstruction from left hand side I have written alternative which works same way.
 
-console.log(team1, draw, team2);
-
 // Write a function ('printGoals') that receives an arbitrary number of player
 // names (not an array) and prints each of them to the console, along with the
 // number of goals that were scored in total (number of player names passed in)
@@ -127,7 +125,47 @@ function printGoals(...args) {
 // operator
 
 //tricky but useful step
-team1 < team2 &&
-  console.log(`team1 has higher chance of winning, ${team1},${team2}`);
-team2 < team1 &&
-  console.log(`team2 has higher chance of winning, ${team1},${team2}`);
+// team1 < team2 &&
+//   console.log(`team1 has higher chance of winning, ${team1},${team2}`);
+// team2 < team1 &&
+//   console.log(`team2 has higher chance of winning, ${team1},${team2}`);
+
+//   Loop over the game.scored array and print each player name to the console,
+// along with the goal number (Example: "Goal 1: Lewandowski")
+
+for (const [i, name] of game.scored.entries()) {
+  console.log(`Goal ${i + 1}: ${name}`);
+}
+
+let sum = 0;
+// for (const [, value] of Object.entries(game.odds)) {
+//   sum += value;
+// }
+//better solution is to just use values and not entries
+let odds = Object.values(game.odds);
+for (const value of odds) {
+  sum += value;
+}
+console.log(sum / odds.length);
+// Use a loop to calculate the average odd and log it to the console (We already
+//   studied how to calculate averages, you can go check if you don't remember)
+
+//3
+for (const [key, value] of Object.entries(game.odds)) {
+  // key !== 'x'
+  //   ? console.log(game[key] && `Odd of victory ${game[key]} : ${value}`)
+  //   : console.log(`Odd of draw : ${value}`);
+  console.log(
+    `Odd of ${key === 'x' ? 'draw' : 'victory'} ${game[key] || ''} : ${value}`
+  );
+}
+
+const scorers = {};
+
+for (const each of game.scored) {
+  // if each is already key add it
+  scorers[each] ? scorers[each]++ : (scorers[each] = 1);
+  // got confused and thought I cannot use ? operator as it doesnt handle 0 score, but here the score never is assinged zero :|
+}
+
+console.log(scorers);
