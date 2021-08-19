@@ -206,3 +206,71 @@ displayResults.call({ answers: [5, 2, 3] });
 
 poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] }, 'string');
 poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] });
+
+//IIFE -- Immediately Invoked function expression
+
+//Example
+(function () {
+  console.log('This will only run only once');
+})();
+//another example
+
+(() => console.log('This will ALSO run only once'))();
+
+const secureBooking = function () {
+  let passengers = 0;
+  return function () {
+    passengers++;
+    console.log(`${passengers} : passengers`);
+  };
+};
+
+const booking = secureBooking();
+
+// booking();
+// booking();
+// booking();
+// booking();
+// booking();
+
+// NOTE:
+//Booking still has access to the variable passengers even the EC of it is gone.
+//Reason Closure by JS
+// console.dir(booking);
+// ƒ anonymous()arguments: (...)
+// caller: (...)
+// length: 0
+// name: ""
+// prototype: {constructor: ƒ}
+// [[FunctionLocation]]: script.js:222
+// [[Prototype]]: ƒ ()
+// [[Scopes]]: Scopes[3]0: Closure (secureBooking) {passengers: 5}1:
+//  Script {bookings: Array(0), flight: "LH234", rohith: {…}, createBooking: ƒ, checkIn: ƒ, …}2:
+//   Global {window: Window, self: Window, document: document, name: "", location: Location, …}
+
+//Closure happening example using function setTimeout()
+
+const breakFast = function (nKids) {
+  const cookTime = 2;
+  setTimeout(function () {
+    console.log(
+      `BreakFast will be ready for the ${nKids} kids in ${
+        cookTime * nKids
+      } minutes`
+    );
+  }, 5000); // this is a call backfunction
+};
+
+// breakFast(3);
+
+(function () {
+  const header = document.querySelector('h1');
+  header.style.color = 'red';
+  document.body.addEventListener('click', () => (header.style.color = 'blue'));
+})();
+//NOTE:
+// Explanation on how this works
+// add Event listener will create a call back function which will be called later(when clicked)
+// the anonymous function that is defined was created using object header which will be acessible to this function by its scope.
+// hence it will go ahead and change the object's style.color to blue on click as defined in the function.
+//another note body click is same as any object inside it.
