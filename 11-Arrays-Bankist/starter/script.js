@@ -140,15 +140,41 @@ const displayMovements = function (movements) {
   });
   // console.log(movements);
 };
-displayMovements(movements);
+displayMovements(account1.movements);
 
-//Challenge 1
-//data 1
-// const dogsJulia = [3, 5, 2, 12, 7];
-// const dogsKate = [4, 1, 15, 8, 3];
-//data 2
-const dogsJulia = [9, 16, 6, 8, 3];
-const dogsKate = [10, 5, 6, 1, 4];
+//update balance for the movements & Display
+const calcDisplayBal = function (movements) {
+  const balance = movements.reduce((bal, mov) => bal + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+calcDisplayBal(account1.movements);
+
+//Calc summary using movements and update in the page
+
+const calcDisplaySummary = function (movements, ir) {
+  const deposits = movements.filter(x => x > 0).reduce((sum, x) => sum + x, 0);
+  labelSumIn.textContent = `${deposits}€`;
+  const withdrawals = movements
+    .filter(x => x < 0)
+    .reduce((sum, x) => sum - x, 0);
+  labelSumOut.textContent = `${withdrawals}€`;
+  //interest is paid on each deposit at the rate specified
+  const interest = movements
+    .filter(x => x > 0)
+    .map(x => (x * ir) / 100)
+    .filter(int => int > 1)
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest}€`;
+};
+calcDisplaySummary(account1.movements, account1.interestRate);
+
+// Challenge 1
+// data 1
+const dogsJulia = [3, 5, 2, 12, 7];
+const dogsKate = [4, 1, 15, 8, 3];
+// // data 2
+// const dogsJulia = [9, 16, 6, 8, 3];
+// const dogsKate = [10, 5, 6, 1, 4];
 
 const checkDogs = (dogsJulia, dogsKate) => {
   const dogsJuliaFinal = dogsJulia.slice(1, -2);
@@ -163,4 +189,63 @@ const checkDogs = (dogsJulia, dogsKate) => {
   });
 };
 
-checkDogs(dogsJulia, dogsKate);
+// checkDogs(dogsJulia, dogsKate);
+
+//challenge 2
+const calcAverageHumanAge = function (ages) {
+  const avgHumanAge = ages
+    .map(age => (age <= 2 ? 2 * age : 16 + 4 * age))
+    .filter(hAge => hAge >= 18)
+    .reduce((acc, x, i, arr) => acc + x / arr.length, 0);
+  return avgHumanAge;
+
+  // const agesHuman = ages.map(x => (x <= 2 ? 2 * x : 16 + 4 * x));
+  // const agesHuman18 = agesHuman.filter(x => x >= 18);
+  // const avgHumanAge = agesHuman18.reduce(
+  //   (acc, x) => acc + x / agesHuman18.length,
+  //   0
+  //dont forget that reduce function must return the acc else it will be undefined;
+  // console.log(agesHuman18, avgHumanAge);
+  // console.log(agesHuman);
+};
+//case 1 and 2
+const dogHumanaverage1 = calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
+const dogHumanaverage2 = calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+console.log(dogHumanaverage1, dogHumanaverage2);
+// Map method
+// example
+const movementsDouble = movements.map(i => i * 2);
+// console.log(movementsDouble);
+
+const createUsernames = function (accs) {
+  accs.forEach(
+    acc =>
+      (acc.username = acc.owner
+        .toLowerCase()
+        .split(' ')
+        .map(x => x[0])
+        .join(''))
+  );
+};
+
+createUsernames(accounts);
+// console.log(accounts);
+
+//filter method
+//NOTE: the function should return a boolean value, otherwise it is just like foreach method right ?
+const deposits = movements.filter(mov => mov > 0);
+// console.log(deposits);
+
+const withdrawals = movements.filter(mov => mov < 0);
+// console.log(withdrawals);
+//reduce usage
+const balance = movements.reduce(
+  (acc, mov, i, arr) => (acc += mov), //Init/default==0 as the array is number array what if it was not?
+  //NOTE:will the reduce return the acc object? YES
+  0 //initial value
+);
+// console.dir(balance);
+
+// let balanceFor = 0;
+// movements.forEach(mov => (balanceFor += mov));
+// console.log(balanceFor);
