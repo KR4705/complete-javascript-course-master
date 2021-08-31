@@ -23,35 +23,43 @@ class Workout {
     this.distance = distance; // in KM
     this.duration = duration; // in minutes
   }
+
+  _setDescription() {
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
+      months[this.date.getMonth()]
+    } ${this.date.getDate()}`;
+  }
 }
 
-class Cycling extends Workout {
-  type = 'cycling';
+class Running extends Workout {
+  type = 'running';
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
-    this.calcSpeed();
+    this.calcPace();
+    this._setDescription();
     // this.type = 'cycling';
   }
 
-  calcSpeed() {
-    this.speed = this.distance / (this.duration / 60);
-    return this.speed;
+  calcPace() {
+    this.pace = this.distance / this.duration;
+    return this.pace;
   }
 }
-class Running extends Workout {
-  type = 'running';
+class Cycling extends Workout {
+  type = 'cycling';
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
-    this.calcPace();
+    this.calcSpeed();
+    this._setDescription();
     // this.type = 'running';
   }
 
-  calcPace() {
+  calcSpeed() {
     //
-    this.pace = this.duration / this.distance;
-    return this.pace;
+    this.speed = this.duration / (this.distance / 60);
+    return this.speed;
   }
 }
 
@@ -159,18 +167,64 @@ class App {
 
     //render workout on map as marker
 
-    //clear input fields
-    inputDistance.value =
-      inputDuration.value =
-      inputCadence.value =
-      inputElevation.value =
-        '';
     //render workout as list
-    this.renderWorkoutMarker(workout);
+    this._renderWorkoutMarker(workout);
+    this._renderWorkout(workout);
+    this._hideForm();
     //NOTE: MapEvent is not accessible outside map object?
   }
 
-  renderWorkoutMarker(workout) {
+  _renderWorkout(workout) {
+    console.log(workout);
+    //DOM manipulation
+    let html = `
+      <li class="workout workout--${workout.type}" data-id="${workout.id}">
+        <h2 class="workout__title">${workout.description}</h2>
+        <div class="workout__details">
+          <span class="workout__icon">${
+            workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+          }</span>
+          <span class="workout__value">${workout.distance}</span>
+          <span class="workout__unit">km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⏱</span>
+          <span class="workout__value">${workout.duration}</span>
+          <span class="workout__unit">min</span>
+        </div>
+      `;
+
+    if (workout.type === 'running')
+      html += `
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.pace}</span>
+        <span class="workout__unit">min/km</span>
+     </div>
+     <div class="workout__details">
+      <span class="workout__icon">🦶🏼</span>
+      <span class="workout__value">${workout.cadence}</span>
+      <span class="workout__unit">spm</span>
+     </div>
+  </li>`;
+
+    if (workout.type === 'cycling')
+      html += `
+    <div class="workout__details">
+      <span class="workout__icon">⚡️</span>
+      <span class="workout__value">${workout.speed}</span>
+      <span class="workout__unit">km/h</span>
+    </div>
+    <div class="workout__details">
+      <span class="workout__icon">⛰</span>
+      <span class="workout__value">${workout.elevationGain}</span>
+      <span class="workout__unit">m</span>
+    </div>
+  </li>
+  `;
+    form.insertAdjacentHTML('afterend', html);
+  }
+  _renderWorkoutMarker(workout) {
     console.log(workout);
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -185,7 +239,9 @@ class App {
           className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent(`${workout.distance}`)
+      .setPopupContent(
+        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
+      )
       .openPopup();
   }
 
@@ -193,6 +249,19 @@ class App {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
+  }
+
+  _hideForm() {
+    //clear input fields
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    form.style.display = 'none';
+    form.classList.add('hidden');
+    setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
   _toggleElevationField() {
