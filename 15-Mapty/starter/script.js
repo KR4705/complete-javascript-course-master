@@ -72,11 +72,17 @@ class App {
   #map;
   #mapEvent;
   #workouts = [];
+  #mapZoomLvl = 13;
   constructor() {
+    //Get users position
     this._getPosition();
+    //Get local storage
+    this._getLocalStorage();
+
     //event listeners
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -123,6 +129,10 @@ class App {
 
     //handling clicks on maps
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(wout => {
+      this._renderWorkoutMarker(wout);
+    });
   }
   _newWorkout(e) {
     //helper functions
@@ -172,10 +182,40 @@ class App {
     this._renderWorkout(workout);
     this._hideForm();
     //NOTE: MapEvent is not accessible outside map object?
+
+    //set local storage to all workouts
+    this._setlocalStorage();
+  }
+
+  _setlocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    // console.log(data);
+    if (!data) return;
+
+    this.#workouts = data;
+    this.#workouts.forEach(wout => {
+      this._renderWorkout(wout);
+    });
+  }
+  _moveToPopup(e) {
+    const workEl = e.target.closest('.workout');
+    if (!workEl) return;
+    const workout = this.#workouts.find(wout => wout.id === workEl.dataset.id);
+    // console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLvl, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
 
   _renderWorkout(workout) {
-    console.log(workout);
+    // console.log(workout);
     //DOM manipulation
     let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
@@ -225,7 +265,7 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
   _renderWorkoutMarker(workout) {
-    console.log(workout);
+    // console.log(workout);
     L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
@@ -267,6 +307,11 @@ class App {
   _toggleElevationField() {
     inputElevation.parentElement.classList.toggle('form__row--hidden');
     inputCadence.parentElement.classList.toggle('form__row--hidden');
+  }
+
+  reset() {
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
