@@ -44,16 +44,17 @@ checkLimit();
 
 console.log(budgetArr);
 
-const bigExpenses = function (limit) {
+const logBigExpenses = function (bigLimit) {
   let output = '';
   for (const entry of budgetArr) {
-    // if (entry.value <= -limit) {
+    // if (entry.value <= -bigLimit) {
     //   output += entry.description.slice(-2) + ' / '; // Emojis are 2 chars
     // }
-    output += entry.value <= -limit ? entry.description.slice(-2) + ' / ' : '';
+    output +=
+      entry.value <= -bigLimit ? entry.description.slice(-2) + ' / ' : '';
   }
   output = output.slice(0, -2); // Remove last '/ '
   console.log(output);
 };
 
-bigExpenses(1000);
+logBigExpenses(1000);
